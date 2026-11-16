@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><title>Vòng chung kết – Thử thách lật 8 ô</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--d:#4B146B;--p:#7625A8;--l:#A84BD0;--h:#D52AAB;--w:#fff;--bg:#F8F0FF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;background:radial-gradient(ellipse at 20% 0,#7625A8 0,transparent 55%),radial-gradient(ellipse at 90% 100%,#D52AAB 0,transparent 50%),#4B146B;background-attachment:fixed;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:conic-gradient(from 0deg at 50% -20%,transparent 0 20%,rgba(255,255,255,.12) 25%,transparent 30% 70%,rgba(255,255,255,.12) 75%,transparent 80%);animation:sw 9s ease-in-out infinite alternate;pointer-events:none}
+@keyframes sw{to{transform:translateX(8%) scale(1.1);opacity:.5}}
+main{position:relative;max-width:1400px;margin:0 auto;padding:18px 20px 30px;text-align:center}
+.logos{display:inline-flex;gap:clamp(12px,3vw,44px);align-items:center;justify-content:center;flex-wrap:wrap;background:#fff;border-radius:999px;padding:10px clamp(18px,3vw,40px);min-height:64px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.logos img{height:clamp(30px,5.5vw,64px);max-width:28vw;width:auto;object-fit:contain}
+.logos .ph{color:var(--p);font-weight:700;font-size:.85rem}
+h1{margin:22px 0 24px;font-size:clamp(2rem,6vw,4.6rem);font-weight:900;letter-spacing:.04em;background:linear-gradient(90deg,#fff,#f0b6ff,#D52AAB);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(213,42,171,.7))}
+h2{margin:0 0 24px;font-weight:600;letter-spacing:.12em;font-size:clamp(.8rem,2vw,1.3rem);opacity:.9}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(12px,2vw,28px);perspective:1200px}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}}
+.tile{aspect-ratio:16/10;border:0;padding:0;cursor:pointer;background:none;position:relative;transform-style:preserve-3d;transition:transform .7s,filter .2s;font:inherit;color:inherit}
+.tile:not(:disabled):hover{transform:translateY(-6px) scale(1.03);filter:drop-shadow(0 0 22px #D52AAB)}
+.tile:active:not(:disabled){transform:scale(.97)}
+.face{position:absolute;inset:0;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;backface-visibility:hidden;border:2px solid rgba(255,255,255,.55)}
+.front{background:linear-gradient(145deg,#A84BD0,#7625A8 55%,#4B146B);box-shadow:0 12px 0 #35094f,0 18px 30px rgba(0,0,0,.45),inset 0 0 30px rgba(255,255,255,.2)}
+.front b{font-size:clamp(2rem,5vw,4rem);line-height:1;text-shadow:0 0 18px #D52AAB}
+.front i{font-style:normal;font-size:clamp(1.2rem,3vw,2.2rem);opacity:.8}
+.back{transform:rotateY(180deg);background:linear-gradient(145deg,#2c0a40,#4B146B);box-shadow:inset 0 0 30px rgba(0,0,0,.5);font-weight:800;letter-spacing:.1em;opacity:.8;font-size:clamp(1rem,2.4vw,1.6rem)}
+.tile:disabled{cursor:not-allowed;transform:rotateY(180deg)}
+.tile.flip{transform:rotateY(180deg) scale(1.1)}
+.bar{display:flex;justify-content:center;gap:12px;margin-top:26px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:999px;padding:12px 22px;font:700 1rem inherit;font-family:inherit;cursor:pointer;background:#fff;color:var(--d);box-shadow:0 4px 0 #cfa6e6,0 8px 20px rgba(0,0,0,.3);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}.btn.alt{background:linear-gradient(90deg,var(--p),var(--h));color:#fff;box-shadow:0 4px 0 #35094f}
+#full{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,#7625A8,#2c0a40 75%);z-index:20;padding:env(safe-area-inset-top,0px) 0 0}
+#full.on{display:flex;animation:zin .6s ease-out}#full.out{animation:fout .4s ease-in forwards}
+@keyframes zin{from{opacity:0;transform:scale(.6)}}@keyframes fout{to{opacity:0}}
+#full img{max-width:96vw;max-height:94vh;object-fit:contain;border-radius:10px;box-shadow:0 0 60px 10px rgba(213,42,171,.6)}
+#full .none{font-size:1.5rem;opacity:.8}
+#home{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:calc(14px + env(safe-area-inset-top,0px));font-size:1.15rem;padding:14px 26px;z-index:2}
+#no{position:absolute;right:18px;top:calc(18px + env(safe-area-inset-top,0px));font-weight:700;background:rgba(0,0,0,.35);padding:8px 16px;border-radius:999px}
+#adm{position:fixed;inset:0;background:rgba(30,5,45,.92);z-index:30;display:none;overflow:auto;padding:20px}
+#adm.on{display:block}.box{max-width:900px;margin:0 auto;background:var(--bg);color:var(--d);border-radius:20px;padding:22px;text-align:left}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin:14px 0}
+.ag div{background:#fff;border-radius:12px;padding:10px;font-size:.9rem}.ag img{width:100%;height:90px;object-fit:contain;background:#eee;border-radius:8px;display:block;margin:6px 0}
+.ag input{width:100%;font-size:.8rem}
+#msg{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#fff;color:var(--d);padding:8px 16px;border-radius:999px;font-weight:600;display:none;z-index:40}
+.note{font-size:.8rem;opacity:.75;margin-top:14px}
+
+.adminbtn{position:fixed;right:10px;bottom:10px;opacity:.25;border:0;background:none;color:#fff;font-size:1.3rem;cursor:pointer;z-index:5}.adminbtn:hover{opacity:.9}
+#adm input[type=password]{padding:10px 14px;border-radius:999px;border:2px solid #A84BD0;font-size:1rem;margin-right:8px}
+body{font-family:"Nunito",ui-rounded,"Hiragino Maru Gothic ProN","Segoe UI",system-ui,sans-serif}
+h1,.front b,.back,#no,.btn,#cnt{font-family:"Baloo 2","Nunito",ui-rounded,"Segoe UI",system-ui,sans-serif}
+h1{font-weight:800;line-height:1.1;letter-spacing:.03em}
+.front b{font-weight:800}
+.rules{max-width:1200px;margin:0 auto 26px;text-align:left}
+.rt{display:table;margin:0 auto 14px;padding:8px 28px;border-radius:999px;background:linear-gradient(90deg,#7625A8,#D52AAB);font-family:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;font-weight:800;font-size:clamp(1rem,2.4vw,1.7rem);letter-spacing:.06em;box-shadow:0 0 22px rgba(213,42,171,.6);border:2px solid rgba(255,255,255,.65);text-align:center}
+.rg{display:grid;grid-template-columns:1fr 2fr;gap:14px;align-items:stretch}
+.rsub{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rcol{display:flex;flex-direction:column;gap:6px}
+.rl{text-align:center;font-family:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;font-weight:800;letter-spacing:.08em;color:#ffd6f4;font-size:clamp(.9rem,1.5vw,1.2rem)}
+.rc{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.4);border-radius:18px;padding:12px 18px;backdrop-filter:blur(4px);flex:1}
+.rc h3{margin:0 0 6px;font-family:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;font-size:clamp(.95rem,1.5vw,1.2rem);color:#ffd6f4;letter-spacing:.03em}
+.rc ul{margin:0;padding-left:1.1em;font-size:clamp(.82rem,1.25vw,1.02rem);line-height:1.5}
+.rf{margin-top:14px;text-align:center;border-radius:999px;padding:10px 22px;background:#fff;color:#4B146B;font-weight:800;font-size:clamp(.85rem,1.5vw,1.15rem);box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.rf b{color:#D52AAB;font-family:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;letter-spacing:.05em}
+.rules.off{display:none}
+@media(max-width:900px){.rg,.rsub{grid-template-columns:1fr}.rf{border-radius:22px}}
+.rg{grid-template-columns:repeat(3,1fr)}
+.rspan{grid-column:span 2}
+.rsub{flex:1}
+.rt{font-size:clamp(1.5rem,4.5vw,3.2rem);padding:10px 38px;margin-top:6px;margin-bottom:20px}
+.ga .rl{background:linear-gradient(90deg,#D52AAB,#A84BD0);color:#fff;border-radius:999px;padding:6px 14px;box-shadow:0 0 14px rgba(213,42,171,.6)}
+.ga .rc{background:rgba(213,42,171,.38);border:2px solid #ff9be6;color:#fff;display:flex;align-items:center}
+.gb .rl{background:#fff;color:#4B146B;border-radius:999px;padding:6px 14px;box-shadow:0 0 14px rgba(255,255,255,.35)}
+.gb .rc{background:#fff;color:#3a0f55;border:2px solid #fff}
+.gb .rc h3{color:#D52AAB}
+@media(max-width:900px){.rg{grid-template-columns:1fr}.rspan{grid-column:auto}.rsub{grid-template-columns:1fr}}
+.rules{margin-top:34px}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main{z-index:1}
+.front{overflow:hidden}
+.tile:not(:disabled) .front{animation:tg 9.6s ease-in-out infinite}
+.tile:not(:disabled) .front::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.75),transparent);transform:translateX(-160%) skewX(-20deg);animation:sh 9.6s ease-in-out infinite;pointer-events:none}
+@keyframes tg{0%,16%,100%{box-shadow:0 12px 0 #35094f,0 18px 30px rgba(0,0,0,.45),inset 0 0 30px rgba(255,255,255,.2);border-color:rgba(255,255,255,.55)}
+7%{box-shadow:0 12px 0 #35094f,0 0 46px 10px rgba(255,120,230,.95),inset 0 0 50px rgba(255,255,255,.6);border-color:#fff}}
+@keyframes sh{0%{transform:translateX(-160%) skewX(-20deg)}16%,100%{transform:translateX(380%) skewX(-20deg)}}
+.tile:nth-child(1) .front,.tile:nth-child(1) .front::after{animation-delay:0.0s}
+.tile:nth-child(2) .front,.tile:nth-child(2) .front::after{animation-delay:1.2s}
+.tile:nth-child(3) .front,.tile:nth-child(3) .front::after{animation-delay:2.4s}
+.tile:nth-child(4) .front,.tile:nth-child(4) .front::after{animation-delay:3.6s}
+.tile:nth-child(5) .front,.tile:nth-child(5) .front::after{animation-delay:4.8s}
+.tile:nth-child(6) .front,.tile:nth-child(6) .front::after{animation-delay:6.0s}
+.tile:nth-child(7) .front,.tile:nth-child(7) .front::after{animation-delay:7.2s}
+.tile:nth-child(8) .front,.tile:nth-child(8) .front::after{animation-delay:8.4s}
+@media(prefers-reduced-motion:reduce){.tile .front,.tile .front::after{animation:none!important}}
+.back{opacity:.95;background:linear-gradient(145deg,#5a1a80,#2c0a40)}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;700;800&display=swap&subset=vietnamese" rel="stylesheet"></head><body>
+<canvas id="bg"></canvas>
+<main>
+<div class="logos"><img src="assets/logo-1.png" alt="IUH"><img src="assets/logo-2.png" alt="Đoàn TNCS Hồ Chí Minh"><img src="assets/logo-3.png" alt="Hội Sinh viên Việt Nam"><img src="assets/logo-4.png" alt="CLB Lý luận trẻ"><img src="assets/logo-5.png" alt="Thanh niên Hùng Biện"></div>
+
+<div class="rt">PHẦN 3 – TÔI BẢN LĨNH</div>
+<div class="grid" id="grid"></div>
+<div class="bar"><button class="btn" id="snd">🔊 Âm thanh: Bật</button><button class="btn" id="rl">📜 Thể lệ: Ẩn</button><span id="cnt"></span></div>
+<section class="rules" id="rules">
+<div class="rg">
+<div class="rcol ga"><div class="rl">THỂ LỆ CHỌN Ô SỐ</div><div class="rc"><ul>
+<li>Mỗi thí sinh có 10 giây cược điểm (tối đa 50% tổng điểm hiện có).</li>
+<li>Chọn 01 ô số tương ứng với 01 hình ảnh tình huống.</li>
+<li>Sau khi hình ảnh xuất hiện, thí sinh khác có 05 giây nhấn chuông thách đấu.</li></ul></div></div>
+<div class="rcol gb rspan"><div class="rl">HÌNH THỨC THI</div><div class="rsub">
+<div class="rc"><h3>TRƯỜNG HỢP 1: KHÔNG CÓ THÁCH ĐẤU</h3><ul>
+<li>1 phút 30 giây suy nghĩ.</li><li>03 phút trình bày.</li><li>03 phút phản biện cùng Ban Giám khảo.</li>
+<li>Thuyết phục: Cộng điểm cược.</li><li>Không thuyết phục: Trừ 50% điểm cược.</li></ul></div>
+<div class="rc"><h3>TRƯỜNG HỢP 2: CÓ THÁCH ĐẤU</h3><ul>
+<li>Thí sinh thách đấu phải có điểm bằng hoặc cao hơn số điểm cược.</li>
+<li>Mỗi thí sinh có 03 phút trình bày và 03 phút phản biện cùng Ban Giám khảo.</li>
+<li>Thí sinh chính thức được cách ly trong thời gian đối thủ trình bày.</li>
+<li>Người có lập luận thuyết phục hơn: Nhận điểm cược.</li><li>Người còn lại: Mất điểm cược.</li></ul></div>
+</div></div></div>
+<div class="rf"><b>CHUNG KẾT:</b> 02 thí sinh có tổng điểm cao nhất bước tiếp vào phần thi cuối cùng.</div>
+</section>
+</main>
+<button class="adminbtn" id="open" title="Admin">⚙</button>
+<div id="full"><button class="btn" id="home">🏠 HOME</button><div id="no"></div><img id="pic" alt=""><div class="none" id="none" hidden>Chưa có hình cho ô này</div></div>
+<div id="adm"><div class="box">
+<h2 style="color:var(--d);letter-spacing:0;margin:0 0 10px">Quản trị</h2>
+<div id="login"><input type="password" id="pw" placeholder="Mật khẩu Admin"><button class="btn alt" id="go">Đăng nhập</button></div>
+<div id="panel" hidden><p id="stat"></p><p><b>Hình ảnh 8 ô</b> – chọn ảnh mới (JPG, PNG, WEBP) để xem trước, rồi bấm Lưu hình ảnh</p><div class="ag" id="ag"></div><div class="bar" style="justify-content:flex-start"><button class="btn alt" id="save">Lưu hình ảnh</button></div><hr style="margin:18px 0;border:0;border-top:1px solid #d9b8ec"><div class="bar" style="justify-content:flex-start"><button class="btn" id="reset" style="background:#D52AAB;color:#fff">RESET GAME</button></div></div>
+<div class="bar" style="justify-content:flex-start"><button class="btn" id="close">Đóng</button></div>
+</div></div>
+<div id="msg"></div>
+<script>
+(function(){
+var N=8,KEY="lat8_state_v1",PW_HASH="0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",sound=true,ok=false;
+var $=function(i){return document.getElementById(i)};
+function load(){try{var a=JSON.parse(localStorage.getItem(KEY));return Array.isArray(a)?a:[]}catch(e){return []}}
+function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){say("Không lưu được trạng thái")}}
+var opened=load();
+function say(t){var m=$("msg");m.textContent=t;m.style.display="block";setTimeout(function(){m.style.display="none"},2500)}
+function beep(){if(!sound)return;try{var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=520;o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.25);g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}catch(e){}}
+var g=$("grid");
+for(var i=1;i<=N;i++){(function(n){var b=document.createElement("button");b.className="tile";b.id="t"+n;var p=("0"+n).slice(-2);
+b.innerHTML='<div class="face front"><b>'+p+'</b></div><div class="face back"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="width:34%;max-width:96px;filter:drop-shadow(0 0 10px #D52AAB)"><path d="M4 12.5l5.2 5.2L20 6.5"/></svg></div>';
+b.onclick=function(){pick(n)};g.appendChild(b)})(i)}
+function render(){for(var n=1;n<=N;n++){var t=$("t"+n);t.disabled=opened.indexOf(n)>-1;t.classList.remove("flip")}
+ $("cnt").textContent="Đã mở "+opened.length+"/8 · Còn "+(N-opened.length);$("stat").textContent="Đã mở: "+opened.length+" · Chưa mở: "+(N-opened.length)}
+function show(n){$("no").textContent="Ô số "+("0"+n).slice(-2)+"/08";var im=$("pic");im.style.display="";$("none").hidden=true;
+ im.onerror=function(){im.style.display="none";$("none").hidden=false};im.src=src(n);var f=$("full");f.classList.remove("out");f.classList.add("on")}
+function pick(n){opened=load();if(opened.indexOf(n)>-1){render();return}
+ $("t"+n).classList.add("flip");beep();opened=opened.concat([n]);save(opened);setTimeout(function(){show(n);render()},600)}
+function home(){var f=$("full");f.classList.add("out");setTimeout(function(){f.classList.remove("on","out")},400)}
+$("home").onclick=home;
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){if($("adm").classList.contains("on"))$("adm").classList.remove("on");else home()}});
+window.addEventListener("storage",function(e){if(e.key===KEY){opened=load();render()}});
+$("snd").onclick=function(){sound=!sound;this.textContent="🔊 Âm thanh: "+(sound?"Bật":"Tắt")};
+$("open").onclick=function(){$("adm").classList.add("on");$("login").hidden=ok;$("panel").hidden=!ok;if(ok)buildAdmin()};
+$("close").onclick=function(){$("adm").classList.remove("on")};
+async function sha(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
+$("go").onclick=async function(){try{if(await sha($("pw").value)===PW_HASH){ok=true;$("pw").value="";$("login").hidden=true;$("panel").hidden=false;render();buildAdmin()}else say("Sai mật khẩu")}catch(e){say("Cần mở bằng https")}};
+var arm=0,tm;
+$("reset").onclick=function(){var b=this;if(!ok)return;
+ if(!arm){arm=1;b.textContent="BẤM LẠI ĐỂ XÁC NHẬN RESET";tm=setTimeout(function(){arm=0;b.textContent="RESET GAME"},4000);return}
+ clearTimeout(tm);arm=0;b.textContent="RESET GAME";opened=[];save(opened);render();say("Đã reset game")};
+var DB=null,urls={},pend={};
+function idb(){return new Promise(function(res){try{var r=indexedDB.open("lat8_img",1);r.onupgradeneeded=function(){r.result.createObjectStore("i")};r.onsuccess=function(){res(r.result)};r.onerror=function(){res(null)}}catch(e){res(null)}})}
+function iget(n){return new Promise(function(res){if(!DB)return res(null);try{var q=DB.transaction("i").objectStore("i").get(n);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}}catch(e){res(null)}})}
+function iput(n,b){return new Promise(function(res,rej){var t=DB.transaction("i","readwrite");t.objectStore("i").put(b,n);t.oncomplete=res;t.onerror=function(){rej(t.error)}})}
+function idel(n){return new Promise(function(res){var t=DB.transaction("i","readwrite");t.objectStore("i").delete(n);t.oncomplete=res;t.onerror=res})}
+async function loadImgs(){if(!DB)DB=await idb();for(var n=1;n<=N;n++){var b=await iget(n);if(urls[n])URL.revokeObjectURL(urls[n]);urls[n]=b?URL.createObjectURL(b):null}}
+function src(n){return urls[n]||"assets/anh-0"+n+".jpg"}
+function buildAdmin(){var a=$("ag");a.innerHTML="";
+ for(let n=1;n<=N;n++){var d=document.createElement("div");
+  d.innerHTML='<b>Ô '+("0"+n).slice(-2)+(urls[n]?' (đã đổi)':'')+'</b><img alt=""><input type="file" accept=".jpg,.jpeg,.png,.webp,image/*"><button class="btn" style="padding:6px 12px;font-size:.75rem;margin-top:6px">Khôi phục ảnh gốc</button>';
+  var im=d.querySelector("img");im.src=pend[n]?URL.createObjectURL(pend[n]):src(n);
+  d.querySelector("input").onchange=function(e){var f=e.target.files[0];if(f){pend[n]=f;im.src=URL.createObjectURL(f)}};
+  d.querySelector("button").onclick=async function(){if(!DB){say("Trình duyệt không hỗ trợ lưu ảnh");return}delete pend[n];await idel(n);await loadImgs();buildAdmin();say("Đã khôi phục ảnh gốc ô "+("0"+n).slice(-2))};
+  a.appendChild(d)}}
+$("save").onclick=async function(){if(!ok)return;if(!DB){say("Trình duyệt không hỗ trợ lưu ảnh");return}
+ var ks=Object.keys(pend);if(!ks.length){say("Chưa chọn ảnh mới");return}
+ try{for(var k of ks){await iput(+k,pend[k])}pend={};await loadImgs();buildAdmin();say("Đã lưu hình ảnh")}catch(e){say("Lỗi lưu ảnh (ảnh quá lớn?)")}};
+render();loadImgs();
+})();
+</script><script>document.getElementById("rl").onclick=function(){var r=document.getElementById("rules");r.classList.toggle("off");this.textContent="📜 Thể lệ: "+(r.classList.contains("off")?"Hiện":"Ẩn")}</script><script>(function(){var c=document.getElementById("bg"),x=c.getContext("2d"),W,H,dpr=Math.min(window.devicePixelRatio||1,1.5),nodes=[],cols=[],reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches,CH="01010101ABCDEF{}<>/#%".split(""),full=document.getElementById("full");
+function size(){W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(W*H/26000),i;nodes=[];for(i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:1+Math.random()*1.8});var k=Math.floor(W/34);cols=[];for(i=0;i<k;i++)cols.push({x:i*34+10,y:Math.random()*H,s:.5+Math.random()*1.5,l:6+Math.floor(Math.random()*10)})}
+function beam(t,sp,w,a,off){var bx=((t*sp+off)%(W+900))-450;var g=x.createLinearGradient(bx,0,bx+w,0);g.addColorStop(0,"rgba(255,255,255,0)");g.addColorStop(.5,"rgba(255,255,255,"+a+")");g.addColorStop(1,"rgba(255,255,255,0)");x.save();x.transform(1,0,-.35,1,H*.17,0);x.fillStyle=g;x.fillRect(bx,0,w,H);x.restore()}
+function draw(t){x.clearRect(0,0,W,H);var i,j,n,d;
+ beam(t,.06,300,.13,0);beam(t,.035,180,.09,700);
+ x.font="14px monospace";
+ for(i=0;i<cols.length;i++){var o=cols[i];for(j=0;j<o.l;j++){var yy=o.y-j*18;if(yy<-18||yy>H+18)continue;x.fillStyle=j===0?"rgba(255,255,255,.55)":"rgba(235,160,255,"+((1-j/o.l)*.2).toFixed(3)+")";x.fillText(CH[(Math.floor(o.y/18)-j+i*13+CH.length*100)%CH.length],o.x,yy)}if(!reduce){o.y+=o.s;if(o.y-o.l*18>H){o.y=-20;o.s=.5+Math.random()*1.5}}}
+ for(i=0;i<nodes.length;i++){n=nodes[i];if(!reduce){n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1}
+  for(j=i+1;j<nodes.length;j++){var m=nodes[j],dx=n.x-m.x,dy=n.y-m.y;d=Math.sqrt(dx*dx+dy*dy);if(d<150){x.strokeStyle="rgba(255,255,255,"+((1-d/150)*.22).toFixed(3)+")";x.lineWidth=1;x.beginPath();x.moveTo(n.x,n.y);x.lineTo(m.x,m.y);x.stroke()}}
+  x.fillStyle="rgba(255,160,240,.14)";x.beginPath();x.arc(n.x,n.y,n.r*3.2,0,6.283);x.fill();x.fillStyle="rgba(255,210,250,.85)";x.beginPath();x.arc(n.x,n.y,n.r,0,6.283);x.fill()}}
+function loop(t){if(full&&full.classList.contains("on")){x.clearRect(0,0,W,H)}else draw(t);if(!reduce)requestAnimationFrame(loop)}
+size();window.addEventListener("resize",size);if(reduce)draw(0);else requestAnimationFrame(loop)})();</script></body></html>
