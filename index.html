@@ -143,6 +143,7 @@ const firebaseConfig = {
 };
 const CLOUDINARY_CLOUD = "dutow0ng";
 const CLOUDINARY_PRESET = "toi_ban_linh_2026";
+const CLOUDINARY_SIGNER_URL = "https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/sign-upload";
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
@@ -200,15 +201,20 @@ $("save").onclick=async function(){if(!ok||!auth.currentUser)return;
 var ks=Object.keys(pending);if(!ks.length){say("Chưa chọn ảnh mới");return}
 this.disabled=true;this.textContent="Đang tải ảnh...";
 try{
-for(var k of ks){var fd=new FormData();fd.append("file",pending[k].file);fd.append("upload_preset",CLOUDINARY_PRESET);fd.append("folder","toi-ban-linh-2026");
-var response=await fetch("https://api.cloudinary.com/v1_1/"+CLOUDINARY_CLOUD+"/image/upload",{method:"POST",body:fd});
+for(var k of ks){
+if(CLOUDINARY_SIGNER_URL.indexOf("YOUR-WORKER-NAME")>=0)throw new Error("Chưa cấu hình địa chỉ dịch vụ ký Cloudinary");
+var token=await auth.currentUser.getIdToken(true);
+var signedResponse=await fetch(CLOUDINARY_SIGNER_URL,{method:"POST",headers:{"Authorization":"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({slot:Number(k)})});
+var signed=await signedResponse.json();if(!signedResponse.ok)throw new Error(signed.error||"Không xác thực được quyền tải ảnh");
+var fd=new FormData();fd.append("file",pending[k].file);fd.append("api_key",signed.apiKey);fd.append("timestamp",String(signed.timestamp));fd.append("signature",signed.signature);fd.append("folder",signed.folder);fd.append("upload_preset",signed.uploadPreset);
+var response=await fetch("https://api.cloudinary.com/v1_1/"+signed.cloudName+"/image/upload",{method:"POST",body:fd});
 var result=await response.json();if(!response.ok)throw new Error(result.error&&result.error.message||"Cloudinary upload lỗi");
-await set(ref(db,"game/images/"+k),result.secure_url);
+await set(ref(db,"game/images/"+k),{url:result.secure_url,publicId:result.public_id,updatedAt:Date.now()});
 URL.revokeObjectURL(pending[k].preview);delete pending[k]}
 buildAdmin();say("Đã lưu ảnh. Các thiết bị khác sẽ tự cập nhật.");
 }catch(e){say("Lỗi lưu ảnh: "+e.message)}finally{this.disabled=false;this.textContent="Lưu hình ảnh"}};
 onValue(ref(db,"game/images"),function(snapshot){var data=snapshot.val()||{},next={};
-for(var n=1;n<=N;n++)if(typeof data[n]==="string"&&/^https:\/\//.test(data[n]))next[n]=data[n];
+for(var n=1;n<=N;n++)if(typeof data[n]==="string"&&/^https:\/\//.test(data[n]))next[n]=data[n];else if(data[n]&&typeof data[n].url==="string"&&/^https:\/\//.test(data[n].url))next[n]=data[n].url;
 imageMap=next;if(currentShown){$("pic").src=src(currentShown)}
 if(ok)buildAdmin()});
 render();
