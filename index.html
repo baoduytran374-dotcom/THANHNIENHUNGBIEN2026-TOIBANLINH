@@ -122,61 +122,96 @@ main{z-index:1}
 <div id="full"><button class="btn" id="home">🏠 HOME</button><div id="no"></div><img id="pic" alt=""><div class="none" id="none" hidden>Chưa có hình cho ô này</div></div>
 <div id="adm"><div class="box">
 <h2 style="color:var(--d);letter-spacing:0;margin:0 0 10px">Quản trị</h2>
-<div id="login"><input type="password" id="pw" placeholder="Mật khẩu Admin"><button class="btn alt" id="go">Đăng nhập</button></div>
+<div id="login"><input type="email" id="email" placeholder="Email Admin" autocomplete="username"><input type="password" id="pw" placeholder="Mật khẩu Admin" autocomplete="current-password"><button class="btn alt" id="go">Đăng nhập</button></div>
 <div id="panel" hidden><p id="stat"></p><p><b>Hình ảnh 8 ô</b> – chọn ảnh mới (JPG, PNG, WEBP) để xem trước, rồi bấm Lưu hình ảnh</p><div class="ag" id="ag"></div><div class="bar" style="justify-content:flex-start"><button class="btn alt" id="save">Lưu hình ảnh</button></div><hr style="margin:18px 0;border:0;border-top:1px solid #d9b8ec"><div class="bar" style="justify-content:flex-start"><button class="btn" id="reset" style="background:#D52AAB;color:#fff">RESET GAME</button></div></div>
 <div class="bar" style="justify-content:flex-start"><button class="btn" id="close">Đóng</button></div>
 </div></div>
 <div id="msg"></div>
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBLSC6u9DTIkir477hJwnOWaESVm-BPcYA",
+  authDomain: "thanhnienhungbien2026--copy.firebaseapp.com",
+  databaseURL: "https://thanhnienhungbien2026--copy-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "thanhnienhungbien2026--copy",
+  storageBucket: "thanhnienhungbien2026--copy.firebasestorage.app",
+  messagingSenderId: "436588488366",
+  appId: "1:436588488366:web:75886a738f94061c596f3f"
+};
+const CLOUDINARY_CLOUD = "dutow0ng";
+const CLOUDINARY_PRESET = "toi_ban_linh_2026";
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
 (function(){
-var N=8,KEY="lat8_state_v1",PW_HASH="0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c",sound=true,ok=false;
+var N=8,KEY="lat8_state_v1",sound=true,ok=false,currentShown=0;
+var imageMap={},pending={},opened=[];
 var $=function(i){return document.getElementById(i)};
 function load(){try{var a=JSON.parse(localStorage.getItem(KEY));return Array.isArray(a)?a:[]}catch(e){return []}}
 function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){say("Không lưu được trạng thái")}}
-var opened=load();
-function say(t){var m=$("msg");m.textContent=t;m.style.display="block";setTimeout(function(){m.style.display="none"},2500)}
+opened=load();
+function say(t){var m=$("msg");m.textContent=t;m.style.display="block";setTimeout(function(){m.style.display="none"},3000)}
 function beep(){if(!sound)return;try{var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.frequency.value=520;o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.25);g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.3)}catch(e){}}
 var g=$("grid");
 for(var i=1;i<=N;i++){(function(n){var b=document.createElement("button");b.className="tile";b.id="t"+n;var p=("0"+n).slice(-2);
 b.innerHTML='<div class="face front"><b>'+p+'</b></div><div class="face back"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" style="width:34%;max-width:96px;filter:drop-shadow(0 0 10px #D52AAB)"><path d="M4 12.5l5.2 5.2L20 6.5"/></svg></div>';
 b.onclick=function(){pick(n)};g.appendChild(b)})(i)}
 function render(){for(var n=1;n<=N;n++){var t=$("t"+n);t.disabled=opened.indexOf(n)>-1;t.classList.remove("flip")}
- $("cnt").textContent="Đã mở "+opened.length+"/8 · Còn "+(N-opened.length);$("stat").textContent="Đã mở: "+opened.length+" · Chưa mở: "+(N-opened.length)}
-function show(n){$("no").textContent="Ô số "+("0"+n).slice(-2)+"/08";var im=$("pic");im.style.display="";$("none").hidden=true;
- im.onerror=function(){im.style.display="none";$("none").hidden=false};im.src=src(n);var f=$("full");f.classList.remove("out");f.classList.add("on")}
-function pick(n){opened=load();if(opened.indexOf(n)>-1){render();return}
- $("t"+n).classList.add("flip");beep();opened=opened.concat([n]);save(opened);setTimeout(function(){show(n);render()},600)}
-function home(){var f=$("full");f.classList.add("out");setTimeout(function(){f.classList.remove("on","out")},400)}
+$("cnt").textContent="Đã mở "+opened.length+"/8 · Còn "+(N-opened.length);$("stat").textContent="Đã mở: "+opened.length+" · Chưa mở: "+(N-opened.length)}
+function src(n){return imageMap[n]||"assets/anh-0"+n+".jpg"}
+function show(n){currentShown=n;$("no").textContent="Ô số "+("0"+n).slice(-2)+"/08";var im=$("pic");im.style.display="";$("none").hidden=true;im.onerror=function(){im.style.display="none";$("none").hidden=false};im.src=src(n);var f=$("full");f.classList.remove("out");f.classList.add("on")}
+function pick(n){if(opened.indexOf(n)>-1){render();return}
+$("t"+n).classList.add("flip");beep();opened=opened.concat([n]);save(opened);setTimeout(function(){show(n);render()},600)}
+function home(){var f=$("full");f.classList.add("out");setTimeout(function(){f.classList.remove("on","out");currentShown=0},400)}
 $("home").onclick=home;
 document.addEventListener("keydown",function(e){if(e.key==="Escape"){if($("adm").classList.contains("on"))$("adm").classList.remove("on");else home()}});
 window.addEventListener("storage",function(e){if(e.key===KEY){opened=load();render()}});
 $("snd").onclick=function(){sound=!sound;this.textContent="🔊 Âm thanh: "+(sound?"Bật":"Tắt")};
 $("open").onclick=function(){$("adm").classList.add("on");$("login").hidden=ok;$("panel").hidden=!ok;if(ok)buildAdmin()};
 $("close").onclick=function(){$("adm").classList.remove("on")};
-async function sha(s){var b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")}
-$("go").onclick=async function(){try{if(await sha($("pw").value)===PW_HASH){ok=true;$("pw").value="";$("login").hidden=true;$("panel").hidden=false;render();buildAdmin()}else say("Sai mật khẩu")}catch(e){say("Cần mở bằng https")}};
+$("go").onclick=async function(){
+ try{
+  const email=$("email").value.trim(),password=$("pw").value;
+  if(!email||!password){say("Nhập email và mật khẩu Admin Firebase");return}
+  await signInWithEmailAndPassword(auth,email,password);
+  ok=true;$("pw").value="";$("login").hidden=true;$("panel").hidden=false;render();buildAdmin();
+ }catch(e){say("Đăng nhập thất bại: "+(e.code||"kiểm tra email/mật khẩu"))}
+};
 var arm=0,tm;
 $("reset").onclick=function(){var b=this;if(!ok)return;
- if(!arm){arm=1;b.textContent="BẤM LẠI ĐỂ XÁC NHẬN RESET";tm=setTimeout(function(){arm=0;b.textContent="RESET GAME"},4000);return}
- clearTimeout(tm);arm=0;b.textContent="RESET GAME";opened=[];save(opened);render();say("Đã reset game")};
-var DB=null,urls={},pend={};
-function idb(){return new Promise(function(res){try{var r=indexedDB.open("lat8_img",1);r.onupgradeneeded=function(){r.result.createObjectStore("i")};r.onsuccess=function(){res(r.result)};r.onerror=function(){res(null)}}catch(e){res(null)}})}
-function iget(n){return new Promise(function(res){if(!DB)return res(null);try{var q=DB.transaction("i").objectStore("i").get(n);q.onsuccess=function(){res(q.result||null)};q.onerror=function(){res(null)}}catch(e){res(null)}})}
-function iput(n,b){return new Promise(function(res,rej){var t=DB.transaction("i","readwrite");t.objectStore("i").put(b,n);t.oncomplete=res;t.onerror=function(){rej(t.error)}})}
-function idel(n){return new Promise(function(res){var t=DB.transaction("i","readwrite");t.objectStore("i").delete(n);t.oncomplete=res;t.onerror=res})}
-async function loadImgs(){if(!DB)DB=await idb();for(var n=1;n<=N;n++){var b=await iget(n);if(urls[n])URL.revokeObjectURL(urls[n]);urls[n]=b?URL.createObjectURL(b):null}}
-function src(n){return urls[n]||"assets/anh-0"+n+".jpg"}
+if(!arm){arm=1;b.textContent="BẤM LẠI ĐỂ XÁC NHẬN RESET";tm=setTimeout(function(){arm=0;b.textContent="RESET GAME"},4000);return}
+clearTimeout(tm);arm=0;b.textContent="RESET GAME";opened=[];save(opened);render();say("Đã reset game")};
 function buildAdmin(){var a=$("ag");a.innerHTML="";
- for(let n=1;n<=N;n++){var d=document.createElement("div");
-  d.innerHTML='<b>Ô '+("0"+n).slice(-2)+(urls[n]?' (đã đổi)':'')+'</b><img alt=""><input type="file" accept=".jpg,.jpeg,.png,.webp,image/*"><button class="btn" style="padding:6px 12px;font-size:.75rem;margin-top:6px">Khôi phục ảnh gốc</button>';
-  var im=d.querySelector("img");im.src=pend[n]?URL.createObjectURL(pend[n]):src(n);
-  d.querySelector("input").onchange=function(e){var f=e.target.files[0];if(f){pend[n]=f;im.src=URL.createObjectURL(f)}};
-  d.querySelector("button").onclick=async function(){if(!DB){say("Trình duyệt không hỗ trợ lưu ảnh");return}delete pend[n];await idel(n);await loadImgs();buildAdmin();say("Đã khôi phục ảnh gốc ô "+("0"+n).slice(-2))};
-  a.appendChild(d)}}
-$("save").onclick=async function(){if(!ok)return;if(!DB){say("Trình duyệt không hỗ trợ lưu ảnh");return}
- var ks=Object.keys(pend);if(!ks.length){say("Chưa chọn ảnh mới");return}
- try{for(var k of ks){await iput(+k,pend[k])}pend={};await loadImgs();buildAdmin();say("Đã lưu hình ảnh")}catch(e){say("Lỗi lưu ảnh (ảnh quá lớn?)")}};
-render();loadImgs();
+for(let n=1;n<=N;n++){var d=document.createElement("div");
+d.innerHTML='<b>Ô '+("0"+n).slice(-2)+(imageMap[n]?' (đã đổi)':'')+'</b><img alt=""><input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"><button class="btn" style="padding:6px 12px;font-size:.75rem;margin-top:6px">Khôi phục ảnh gốc</button>';
+var im=d.querySelector("img");im.src=pending[n]?pending[n].preview:src(n);
+d.querySelector("input").onchange=function(e){var file=e.target.files[0];if(!file)return;
+if(!/^image\/(jpeg|png|webp)$/.test(file.type)){say("Chỉ hỗ trợ JPG, PNG hoặc WEBP");e.target.value="";return}
+if(file.size>10*1024*1024){say("Ảnh tối đa 10 MB");e.target.value="";return}
+if(pending[n]&&pending[n].preview)URL.revokeObjectURL(pending[n].preview);
+pending[n]={file:file,preview:URL.createObjectURL(file)};im.src=pending[n].preview};
+d.querySelector("button").onclick=async function(){if(!ok)return;try{await remove(ref(db,"game/images/"+n));delete pending[n];buildAdmin();say("Đã khôi phục ảnh gốc ô "+("0"+n).slice(-2))}catch(e){say("Không thể khôi phục: kiểm tra quyền Firebase")}};
+a.appendChild(d)}}
+$("save").onclick=async function(){if(!ok||!auth.currentUser)return;
+var ks=Object.keys(pending);if(!ks.length){say("Chưa chọn ảnh mới");return}
+this.disabled=true;this.textContent="Đang tải ảnh...";
+try{
+for(var k of ks){var fd=new FormData();fd.append("file",pending[k].file);fd.append("upload_preset",CLOUDINARY_PRESET);fd.append("folder","toi-ban-linh-2026");
+var response=await fetch("https://api.cloudinary.com/v1_1/"+CLOUDINARY_CLOUD+"/image/upload",{method:"POST",body:fd});
+var result=await response.json();if(!response.ok)throw new Error(result.error&&result.error.message||"Cloudinary upload lỗi");
+await set(ref(db,"game/images/"+k),result.secure_url);
+URL.revokeObjectURL(pending[k].preview);delete pending[k]}
+buildAdmin();say("Đã lưu ảnh. Các thiết bị khác sẽ tự cập nhật.");
+}catch(e){say("Lỗi lưu ảnh: "+e.message)}finally{this.disabled=false;this.textContent="Lưu hình ảnh"}};
+onValue(ref(db,"game/images"),function(snapshot){var data=snapshot.val()||{},next={};
+for(var n=1;n<=N;n++)if(typeof data[n]==="string"&&/^https:\/\//.test(data[n]))next[n]=data[n];
+imageMap=next;if(currentShown){$("pic").src=src(currentShown)}
+if(ok)buildAdmin()});
+render();
 })();
 </script><script>document.getElementById("rl").onclick=function(){var r=document.getElementById("rules");r.classList.toggle("off");this.textContent="📜 Thể lệ: "+(r.classList.contains("off")?"Hiện":"Ẩn")}</script><script>(function(){var c=document.getElementById("bg"),x=c.getContext("2d"),W,H,dpr=Math.min(window.devicePixelRatio||1,1.5),nodes=[],cols=[],reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches,CH="01010101ABCDEF{}<>/#%".split(""),full=document.getElementById("full");
 function size(){W=innerWidth;H=innerHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0);var n=Math.round(W*H/26000),i;nodes=[];for(i=0;i<n;i++)nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:1+Math.random()*1.8});var k=Math.floor(W/34);cols=[];for(i=0;i<k;i++)cols.push({x:i*34+10,y:Math.random()*H,s:.5+Math.random()*1.5,l:6+Math.floor(Math.random()*10)})}
